@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
+// This will help us to store the books in the database
+// This will help the user keep track of their books and their progress
 @Entity
 @Table(name = "books")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder

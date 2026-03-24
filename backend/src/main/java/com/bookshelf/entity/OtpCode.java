@@ -5,6 +5,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
+// This
+// This will help us to store the otp code in the database
+// This will be used to send and verify the otp code
+// This will also be used to put a time constraint on the otp sent
 @Entity
 @Table(name = "otp_codes")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder

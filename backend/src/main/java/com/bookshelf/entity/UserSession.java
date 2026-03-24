@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
+// This database table will help us to store the user session
+// This will help us to keep track of the user session and throw him out after certain time of inactivation
 @Entity
 @Table(name = "user_sessions")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder

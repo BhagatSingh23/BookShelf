@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
+// This will help us to store the reading progress of the user in the database
 @Entity
 @Table(name = "reading_progress")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder

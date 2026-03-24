@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
+
+// This is the main database table for the users
+// This will help us to store the users in the database
 @Entity
 @Table(name = "users")
 @Data

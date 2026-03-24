@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
+// This database table will help us to store the his entries he want to bookmark or save
 @Entity
 @Table(name = "saved_entries")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
