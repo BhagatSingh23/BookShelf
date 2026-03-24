@@ -4,11 +4,73 @@
   padding: 0;
 }
 
+/* ── Light mode (default) ────────────────────────────────── */
+:root, [data-theme="light"] {
+  --bg-primary:    #ffffff;
+  --bg-secondary:  #f9fafb;
+  --bg-card:       #ffffff;
+  --bg-input:      #ffffff;
+  --bg-hover:      #f3f4f6;
+
+  --text-primary:  #111827;
+  --text-secondary:#6b7280;
+  --text-muted:    #9ca3af;
+
+  --border:        #e5e7eb;
+  --border-input:  #d1d5db;
+
+  --accent:        #6366f1;
+  --accent-hover:  #4f46e5;
+  --accent-text:   #ffffff;
+
+  --success:       #10b981;
+  --danger:        #dc2626;
+  --danger-bg:     #fef2f2;
+  --danger-border: #fecaca;
+
+  --badge-bg:      #f3f4f6;
+  --badge-text:    #6b7280;
+
+  --shadow:        0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* ── Dark mode ───────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg-primary:    #1f2937;
+  --bg-secondary:  #111827;
+  --bg-card:       #1f2937;
+  --bg-input:      #374151;
+  --bg-hover:      #374151;
+
+  --text-primary:  #f9fafb;
+  --text-secondary:#9ca3af;
+  --text-muted:    #6b7280;
+
+  --border:        #374151;
+  --border-input:  #4b5563;
+
+  --accent:        #818cf8;
+  --accent-hover:  #6366f1;
+  --accent-text:   #ffffff;
+
+  --success:       #34d399;
+  --danger:        #f87171;
+  --danger-bg:     #450a0a;
+  --danger-border: #7f1d1d;
+
+  --badge-bg:      #374151;
+  --badge-text:    #9ca3af;
+
+  --shadow:        0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* ── Base styles ─────────────────────────────────────────── */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: #f9fafb;
-  color: #111827;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 input, textarea, button, select {
@@ -20,19 +82,10 @@ a {
   color: inherit;
 }
 
-/* Range slider base */
 input[type="range"] {
-  accent-color: #6366f1;
+  accent-color: var(--accent);
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
-
-/* Responsive — stack two columns on mobile */
-@media (max-width: 700px) {
-  .two-col {
-    grid-template-columns: 1fr !important;
-  }
-}
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
