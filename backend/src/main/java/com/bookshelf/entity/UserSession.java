@@ -1,18 +1,15 @@
 package com.bookshelf.entity;
 
 import jakarta.persistence.*;
-// lombok dependency auto creates constructors and getters and setters
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
-// This database table will help us to store the user session
-// This will help us to keep track of the user session and throw him out after certain time of inactivation
 @Entity
 @Table(name = "user_sessions")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserSession {
 
-    // To keep the track of user session and throw him out after certain time of inactivation
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,6 +24,7 @@ public class UserSession {
     @Column(nullable = false)
     private LocalDateTime expiresAt;
 
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 }

@@ -1,17 +1,19 @@
 package com.bookshelf.entity;
 
 import jakarta.persistence.*;
-// lombok dependency auto creates constructors and getters and setters
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
-// This will help us to store the reading progress of the user in the database
 @Entity
 @Table(name = "reading_progress")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class ReadingProgress {
 
-    // To track the progress of the user on the particular book
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,10 +23,13 @@ public class ReadingProgress {
     private Book book;
 
     @Column(nullable = false)
+    @Builder.Default
     private Integer pagesRead = 0;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isCompleted = false;
 
-    private LocalDateTime lastUpdated = LocalDateTime.now();
+    @UpdateTimestamp
+    private LocalDateTime lastUpdated;
 }

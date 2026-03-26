@@ -1,13 +1,10 @@
 package com.bookshelf.entity;
 
 import jakarta.persistence.*;
-// lombok dependency auto creates constructors and getters and setters
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
-
-// This is the main database table for the users
-// This will help us to store the users in the database
 @Entity
 @Table(name = "users")
 @Data
@@ -16,12 +13,10 @@ import java.time.LocalDateTime;
 @Builder
 public class User {
 
-    // Unique id for the user
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // User data
     private String name;
 
     @Column(nullable = false, unique = true)
@@ -30,10 +25,12 @@ public class User {
     private String passwordHash;
 
     @Column(nullable = false)
-    private String authProvider = "LOCAL"; // "LOCAL" or "GOOGLE"
+    @Builder.Default
+    private String authProvider = "LOCAL";
 
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     private LocalDateTime lastLogin;
 }

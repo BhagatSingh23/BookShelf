@@ -1,20 +1,15 @@
 package com.bookshelf.entity;
 
 import jakarta.persistence.*;
-// lombok dependency auto creates constructors and getters and setters
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
-// This
-// This will help us to store the otp code in the database
-// This will be used to send and verify the otp code
-// This will also be used to put a time constraint on the otp sent
 @Entity
 @Table(name = "otp_codes")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class OtpCode {
 
-    // To create a time constraint on the otp sent
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,8 +24,10 @@ public class OtpCode {
     private LocalDateTime expiresAt;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean used = false;
 
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 }

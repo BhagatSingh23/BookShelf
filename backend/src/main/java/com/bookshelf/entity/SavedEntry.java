@@ -1,11 +1,10 @@
 package com.bookshelf.entity;
 
 import jakarta.persistence.*;
-// lombok dependency auto creates constructors and getters and setters
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
-// This database table will help us to store the his entries he want to bookmark or save
 @Entity
 @Table(name = "saved_entries")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
@@ -19,16 +18,17 @@ public class SavedEntry {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    // QUOTE | NOTE | INSIGHT | FACT | REFLECTION
     @Column(nullable = false, length = 50)
+    @Builder.Default
     private String entryType = "QUOTE";
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(length = 20)
-    private String pageRef; // optional e.g. "p.142"
+    private String pageRef;
 
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 }
