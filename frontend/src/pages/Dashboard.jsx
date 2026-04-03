@@ -1,18 +1,26 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import BookCard from '../components/BookCard'
 import { getBooks } from '../api'
 
 export default function Dashboard() {
-  const [books, setBooks]   = useState([])
+  const [books, setBooks]     = useState([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('ALL')
-  const navigate            = useNavigate()
+  const [error, setError]     = useState('')
+  const [filter, setFilter]   = useState('ALL')
+  const navigate              = useNavigate()
 
-  useEffect(() => {
-    getBooks().then(res => setBooks(res.data)).catch(console.error).finally(() => setLoading(false))
+  const loadBooks = useCallback(() => {
+    setLoading(true)
+    setError('')
+    getBooks()
+      .then(res => setBooks(res.data))
+      .catch(() => setError('Failed to load books. Please refresh.'))
+      .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => { loadBooks() }, [loadBooks])
 
   const filtered = books.filter(b => {
     if (filter === 'READING')   return !b.isCompleted && b.pagesRead > 0
@@ -40,8 +48,8 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
-        {/* Filters + Add */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '10px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             {['ALL', 'READING', 'COMPLETED'].map(f => (
               <button key={f} onClick={() => setFilter(f)}
@@ -50,11 +58,21 @@ export default function Dashboard() {
               </button>
             ))}
           </div>
-          <button onClick={() => navigate('/search')} style={addBtn}>+ Add book</button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={loadBooks} style={refreshBtn}>↻ Refresh</button>
+            <button onClick={() => navigate('/search')} style={addBtn}>+ Add book</button>
+          </div>
         </div>
-        {/* Grid */}
+
         {loading ? (
-          <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginTop: '3rem' }}>Loading your books...</p>
+          <div style={{ textAlign: 'center', marginTop: '4rem', color: 'var(--text-secondary)' }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Loading your books...</div>
+          </div>
+        ) : error ? (
+          <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+            <p style={{ color: 'var(--danger)', marginBottom: '1rem' }}>{error}</p>
+            <button onClick={loadBooks} style={addBtn}>Try again</button>
+          </div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', marginTop: '4rem' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📚</div>
@@ -73,13 +91,15 @@ export default function Dashboard() {
   )
 }
 
-const container  = { maxWidth: '1100px', margin: '0 auto', padding: '2rem 1.5rem' }
-const statsRow   = { display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '2rem' }
-const statCard   = { background: 'var(--bg-card)', border: '1px solid var(--border)',
+const container    = { maxWidth: '1100px', margin: '0 auto', padding: '2rem 1.5rem' }
+const statsRow     = { display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '2rem' }
+const statCard     = { background: 'var(--bg-card)', border: '1px solid var(--border)',
   borderRadius: '12px', padding: '1rem 1.25rem', textAlign: 'center' }
-const grid       = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '16px' }
-const filterBtn  = { padding: '6px 14px', border: '1px solid var(--border)', borderRadius: '8px',
+const grid         = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '16px' }
+const filterBtn    = { padding: '6px 14px', border: '1px solid var(--border)', borderRadius: '8px',
   background: 'var(--bg-card)', cursor: 'pointer', fontSize: '0.85rem', color: 'var(--text-primary)' }
 const filterActive = { background: 'var(--accent)', color: '#fff', borderColor: 'var(--accent)' }
-const addBtn     = { padding: '8px 18px', background: 'var(--accent)', color: '#fff',
+const addBtn       = { padding: '8px 18px', background: 'var(--accent)', color: '#fff',
   border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 500, fontSize: '0.9rem' }
+const refreshBtn   = { padding: '8px 14px', background: 'var(--bg-card)', color: 'var(--text-primary)',
+  border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }
