@@ -28,10 +28,20 @@ public class BookService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    // ── Add a book ───────────────────────────────────────────
     @Transactional
     public BookResponse addBook(String email, BookRequest req) {
         User user = getUser(email);
+
+        // Prevent duplicate books
+        if (req.getOlBookId() != null && !req.getOlBookId().isBlank()) {
+            if (bookRepository.existsByUser_IdAndOlBookId(user.getId(), req.getOlBookId())) {
+                throw new RuntimeException("DUPLICATE: This book is already in your shelf");
+            }
+        } else {
+            if (bookRepository.existsByUser_IdAndTitleIgnoreCase(user.getId(), req.getTitle())) {
+                throw new RuntimeException("DUPLICATE: This book is already in your shelf");
+            }
+        }
 
         Book book = Book.builder()
                 .user(user)
@@ -46,7 +56,6 @@ public class BookService {
 
         book = bookRepository.save(book);
 
-        // Auto-create a reading progress row (0 pages, not completed)
         ReadingProgress progress = ReadingProgress.builder()
                 .book(book)
                 .pagesRead(0)
@@ -57,7 +66,6 @@ public class BookService {
         return toResponse(book, progress);
     }
 
-    // ── Get all books for user ───────────────────────────────
     public List<BookResponse> getBooks(String email) {
         User user = getUser(email);
         return bookRepository.findAllByUser_IdOrderByAddedAtDesc(user.getId())
@@ -71,7 +79,6 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
-    // ── Get single book ──────────────────────────────────────
     public BookResponse getBook(String email, Long bookId) {
         User user = getUser(email);
         Book book = bookRepository.findByIdAndUser_Id(bookId, user.getId())
@@ -80,7 +87,6 @@ public class BookService {
         return toResponse(book, p);
     }
 
-    // ── Delete a book ────────────────────────────────────────
     @Transactional
     public void deleteBook(String email, Long bookId) {
         User user = getUser(email);
@@ -89,7 +95,6 @@ public class BookService {
         bookRepository.delete(book);
     }
 
-    // ── Helper: entity → DTO ─────────────────────────────────
     private BookResponse toResponse(Book book, ReadingProgress p) {
         return BookResponse.builder()
                 .id(book.getId())
