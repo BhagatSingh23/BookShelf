@@ -84,7 +84,9 @@ public class BookService {
     @Transactional
     public void deleteBook(String email, Long bookId) {
         User user = getUser(email);
-        bookRepository.deleteByIdAndUser_Id(bookId, user.getId());
+        Book book = bookRepository.findByIdAndUser_Id(bookId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+        bookRepository.delete(book);
     }
 
     // ── Helper: entity → DTO ─────────────────────────────────
