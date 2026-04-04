@@ -34,13 +34,8 @@ public class BookService {
     public BookResponse addBook(String email, BookRequest req) {
         User user = getUser(email);
 
-        // Prevent duplicate books
-        if (req.getOlBookId() != null && !req.getOlBookId().isBlank()) {
-            if (bookRepository.existsByUser_IdAndOlBookId(user.getId(), req.getOlBookId())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "DUPLICATE: This book is already in your shelf");
-            }
-        } else if (req.getTitle() != null) {
+        // Prevent duplicate books (only 1 instance of a book by title allowed)
+        if (req.getTitle() != null) {
             if (bookRepository.existsByUser_IdAndTitleIgnoreCase(user.getId(), req.getTitle())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT,
                         "DUPLICATE: This book is already in your shelf");
@@ -95,7 +90,7 @@ public class BookService {
         Book book = bookRepository.findByIdAndUser_Id(bookId, user.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
         // Use JPA delete — triggers cascades for reading_progress and saved_entries
-        bookRepository.deleteById(book.getId());
+        bookRepository.delete(book);
     }
 
     private BookResponse toResponse(Book book, ReadingProgress p) {

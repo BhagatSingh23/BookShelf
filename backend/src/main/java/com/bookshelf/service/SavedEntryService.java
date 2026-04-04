@@ -42,6 +42,7 @@ public class SavedEntryService {
     }
 
     // ── Get all entries for one book ─────────────────────────
+    @Transactional(readOnly = true)
     public List<SavedEntryResponse> getEntriesForBook(String email, Long bookId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -53,6 +54,7 @@ public class SavedEntryService {
     }
 
     // ── Get ALL entries across all books (for AllEntries page) ─
+    @Transactional(readOnly = true)
     public List<SavedEntryResponse> getAllEntries(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -65,7 +67,12 @@ public class SavedEntryService {
     public void deleteEntry(String email, Long entryId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        entryRepository.deleteByIdAndBook_User_Id(entryId, user.getId());
+        SavedEntry entry = entryRepository.findById(entryId)
+                .orElseThrow(() -> new RuntimeException("Entry not found"));
+        if (!entry.getBook().getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+        entryRepository.delete(entry);
     }
 
     // ── Helper ───────────────────────────────────────────────
