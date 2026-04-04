@@ -9,8 +9,10 @@ import com.bookshelf.repository.BookRepository;
 import com.bookshelf.repository.ReadingProgressRepository;
 import com.bookshelf.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +27,7 @@ public class BookService {
 
     private User getUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     @Transactional
@@ -35,11 +37,13 @@ public class BookService {
         // Prevent duplicate books
         if (req.getOlBookId() != null && !req.getOlBookId().isBlank()) {
             if (bookRepository.existsByUser_IdAndOlBookId(user.getId(), req.getOlBookId())) {
-                throw new RuntimeException("DUPLICATE: This book is already in your shelf");
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "DUPLICATE: This book is already in your shelf");
             }
-        } else {
+        } else if (req.getTitle() != null) {
             if (bookRepository.existsByUser_IdAndTitleIgnoreCase(user.getId(), req.getTitle())) {
-                throw new RuntimeException("DUPLICATE: This book is already in your shelf");
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "DUPLICATE: This book is already in your shelf");
             }
         }
 
@@ -71,9 +75,7 @@ public class BookService {
         return bookRepository.findAllByUser_IdOrderByAddedAtDesc(user.getId())
                 .stream()
                 .map(book -> {
-                    ReadingProgress p = progressRepository
-                            .findByBook_Id(book.getId())
-                            .orElse(null);
+                    ReadingProgress p = progressRepository.findByBook_Id(book.getId()).orElse(null);
                     return toResponse(book, p);
                 })
                 .collect(Collectors.toList());
@@ -82,7 +84,7 @@ public class BookService {
     public BookResponse getBook(String email, Long bookId) {
         User user = getUser(email);
         Book book = bookRepository.findByIdAndUser_Id(bookId, user.getId())
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
         ReadingProgress p = progressRepository.findByBook_Id(bookId).orElse(null);
         return toResponse(book, p);
     }
@@ -91,8 +93,9 @@ public class BookService {
     public void deleteBook(String email, Long bookId) {
         User user = getUser(email);
         Book book = bookRepository.findByIdAndUser_Id(bookId, user.getId())
-                .orElseThrow(() -> new RuntimeException("Book not found"));
-        bookRepository.delete(book);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+        // Use JPA delete — triggers cascades for reading_progress and saved_entries
+        bookRepository.deleteById(book.getId());
     }
 
     private BookResponse toResponse(Book book, ReadingProgress p) {

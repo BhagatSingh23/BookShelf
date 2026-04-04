@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "books")
@@ -41,4 +42,11 @@ public class Book {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime addedAt;
+
+    // Cascade delete — when book is deleted, progress and entries go too
+    @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ReadingProgress readingProgress;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SavedEntry> savedEntries;
 }
