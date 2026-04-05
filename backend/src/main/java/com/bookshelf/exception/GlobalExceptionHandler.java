@@ -15,8 +15,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
+        String msg = ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred.";
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message", ex.getMessage()));
+                .body(Map.of("message", msg));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -40,7 +41,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGlobalException(Exception ex) {
+        String msg = ex.getMessage() != null ? ex.getMessage() : "Unknown error";
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", "An unexpected error occurred: " + ex.getMessage()));
+                .body(Map.of("message", "An unexpected error occurred: " + msg));
     }
 }
