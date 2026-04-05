@@ -1,5 +1,6 @@
 package com.bookshelf.config;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -11,10 +12,15 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
+    @PostConstruct
+    public void init() {
+        System.out.println(">>> CorsConfig loaded - corsConfigurationSource bean created");
+    }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        System.out.println(">>> Building CORS configuration");
         CorsConfiguration config = new CorsConfiguration();
-
         config.setAllowedOrigins(List.of(
                 "https://bookshelf01.vercel.app",
                 "http://localhost:5173"
