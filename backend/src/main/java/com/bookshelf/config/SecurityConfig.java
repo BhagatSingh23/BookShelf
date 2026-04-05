@@ -36,7 +36,8 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/verify-otp",
                                 "/api/auth/google",
-                                "/api/auth/send-otp"
+                                "/api/auth/send-otp",
+                                "/error"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
