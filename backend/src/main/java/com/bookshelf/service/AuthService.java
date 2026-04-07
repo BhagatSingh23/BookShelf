@@ -25,25 +25,33 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final OtpService otpService;
-    private final GoogleIdTokenVerifier googleIdTokenVerifier; // injected from GoogleOAuthConfig
+    private final GoogleIdTokenVerifier googleIdTokenVerifier;
 
-    // ── Register (manual) ────────────────────────────────────
+    // ── Register ───────────────────────────────────────────
     @Transactional
     public void register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.getEmail())) {
             throw new RuntimeException("Email already registered");
         }
+
         User user = User.builder()
                 .name(req.getName())
                 .email(req.getEmail())
                 .passwordHash(passwordEncoder.encode(req.getPassword()))
                 .authProvider("LOCAL")
                 .build();
+
         userRepository.save(user);
-        otpService.generateAndSend(req.getEmail());
+
+        // FIX: Don't break if email fails
+        try {
+            otpService.generateAndSend(req.getEmail());
+        } catch (Exception e) {
+            System.out.println("OTP sending failed during register: " + e.getMessage());
+        }
     }
 
-    // ── Login step 1: validate password, send OTP ────────────
+    // ── Login step 1 ───────────────────────────────────────
     @Transactional
     public void login(LoginRequest req) {
         User user = userRepository.findByEmail(req.getEmail())
@@ -52,16 +60,24 @@ public class AuthService {
         if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
             throw new RuntimeException("Invalid email or password");
         }
-        otpService.generateAndSend(req.getEmail());
+
+        // FIX: Don't break if email fails
+        try {
+            otpService.generateAndSend(req.getEmail());
+        } catch (Exception e) {
+            System.out.println("OTP sending failed during login: " + e.getMessage());
+        }
     }
 
-    // ── Login step 2: verify OTP, return JWT ─────────────────
+    // ── Verify OTP ─────────────────────────────────────────
     @Transactional
     public AuthResponse verifyOtp(OtpVerifyRequest req) {
         boolean valid = otpService.verify(req.getEmail(), req.getCode());
+
         if (!valid) {
             throw new RuntimeException("Invalid or expired OTP");
         }
+
         User user = userRepository.findByEmail(req.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -72,10 +88,11 @@ public class AuthService {
         return new AuthResponse(token, user.getName(), user.getEmail());
     }
 
-    // ── Google OAuth ─────────────────────────────────────────
+    // ── Google OAuth ───────────────────────────────────────
     @Transactional
     public AuthResponse googleLogin(GoogleAuthRequest req) throws Exception {
         GoogleIdToken idToken = googleIdTokenVerifier.verify(req.getIdToken());
+
         if (idToken == null) {
             throw new RuntimeException("Invalid Google token");
         }
