@@ -32,16 +32,18 @@ public class AuthService {
     // ── Register ──────────────────────────────────────────────────────────────
     // saveNewUser() commits FIRST, then email is sent OUTSIDE the transaction.
     // This prevents the "transaction silently rolled back" error.
+    @Transactional
     public void register(RegisterRequest req) {
+        System.out.println("Processing registration for: " + req.getEmail());
         if (userRepository.existsByEmail(req.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "An account with this email already exists.");
         }
 
-        // Commit user to DB in its own transaction before touching email
+        // Commit user to DB
         saveNewUser(req);
 
-        // Email runs AFTER commit — if it fails, user is already saved safely
+        // Email runs after the save — if it fails, we catch it so registration still succeeds
         try {
             otpService.generateAndSend(req.getEmail());
         } catch (Exception e) {
