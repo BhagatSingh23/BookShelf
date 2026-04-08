@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AuthService {
 
     private final UserRepository        userRepository;
@@ -50,7 +49,6 @@ public class AuthService {
         }
     }
 
-    @Transactional
     public void saveNewUser(RegisterRequest req) {
         User user = User.builder()
                 .name(req.getName())
