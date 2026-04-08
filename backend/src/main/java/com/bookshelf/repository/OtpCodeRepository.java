@@ -2,6 +2,7 @@ package com.bookshelf.repository;
 
 import com.bookshelf.entity.OtpCode;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 
