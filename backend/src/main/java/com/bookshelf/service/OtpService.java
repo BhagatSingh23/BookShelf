@@ -35,7 +35,7 @@ public class OtpService {
                 .build();
 
         otpCodeRepository.save(otp);
-        emailService.sendOtp(email, code);
+        emailService.sentOtp(email, code);
     }
 
     @Transactional
