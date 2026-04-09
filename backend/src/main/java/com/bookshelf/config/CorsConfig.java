@@ -20,6 +20,7 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         System.out.println(">>> Building CORS configuration");
+
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
                 "https://bookshelf01.vercel.app",
@@ -33,6 +34,7 @@ public class CorsConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
+
         return source;
     }
 }

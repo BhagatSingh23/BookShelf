@@ -29,15 +29,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        //  Skip public endpoints (IMPORTANT)
-        if (path.equals("/") || path.startsWith("/api/auth") || path.equals("/error")) {
+        // ✅ FIXED: Skip ALL public endpoints
+        if (path.equals("/") ||
+                path.equals("/error") ||
+                path.startsWith("/auth") ||        // ✅ ADDED
+                path.startsWith("/api/auth")) {    // (optional)
+
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
 
-        //  No token → just continue (DO NOT BLOCK)
+        // ✅ No token → just continue (don't block)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -69,7 +73,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception e) {
-            //  Never break request because of token issues
+            // ✅ Never break request because of token issues
             SecurityContextHolder.clearContext();
         }
 

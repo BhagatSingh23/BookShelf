@@ -21,21 +21,21 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
-    private static final String[] PUBLIC_URLS = {
-            "/",
-            "/error",
-            "/api/auth/**"
-    };
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_URLS).permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/error",
+                                "/auth/**",       // ✅ FIXED
+                                "/api/auth/**"    // (optional, keep if used)
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
