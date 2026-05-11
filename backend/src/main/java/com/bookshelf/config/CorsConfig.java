@@ -22,9 +22,9 @@ public class CorsConfig {
         System.out.println(">>> Building CORS configuration");
 
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
+        config.setAllowedOriginPatterns(List.of(
                 "https://bookshelf01.vercel.app",
-                "http://localhost:5173"
+                "http://localhost:*"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

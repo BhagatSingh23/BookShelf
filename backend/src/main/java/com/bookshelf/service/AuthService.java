@@ -32,7 +32,6 @@ public class AuthService {
     // ── Register ──────────────────────────────────────────────────────────────
     // saveNewUser() commits FIRST, then email is sent OUTSIDE the transaction.
     // This prevents the "transaction silently rolled back" error.
-    @Transactional
     public void register(RegisterRequest req) {
         System.out.println("Processing registration for: " + req.getEmail());
         if (userRepository.existsByEmail(req.getEmail())) {
@@ -62,7 +61,6 @@ public class AuthService {
     }
 
     // ── Login ─────────────────────────────────────────────────────────────────
-    @Transactional
     public void login(LoginRequest req) {
         User user = userRepository.findByEmail(req.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
